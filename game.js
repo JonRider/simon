@@ -1,32 +1,50 @@
 const buttonColors = ["red", "blue", "green", "yellow"]
 var gamePattern = [];
 var userClickedPattern = [];
+var level = 0;
+var gameStarted = false;
 
 // Check for user keypress
-$('.btn').on('click', function () {
+$('.btn').on('click', function() {
   var userChosenColor = this.id;
   playSound(userChosenColor);
   userClickedPattern.push(userChosenColor);
+  checkAnswer((userClickedPattern.length - 1));
 });
 
 
 // Start the game on keypress
 $(document).keypress(function() {
-  gameStart();
+  if (!gameStarted) {
+    gameStarted = true;
+    level = 0;
+    nextSequence();
+  }
 });
 
-// Main Game Loop
-function gameStart() {
-  var randomChosenColor = buttonColors[nextSequence()];
+// Grab the next color in the sequence and display it
+function nextSequence() {
+  userClickedPattern = [];
+  var randomNumber = Math.floor(Math.random() * 4);
+  level++;
+  var randomChosenColor = buttonColors[randomNumber];
   gamePattern.push(randomChosenColor);
-  $('#' + randomChosenColor).animate({opacity: '0.5'}, "fast").fadeOut(50).fadeIn(50).animate({opacity: '1'}, "fast");
+  $('#' + randomChosenColor).animate({
+    opacity: '0.5'
+  }, "fast").fadeOut(50).fadeIn(50).animate({
+    opacity: '1'
+  }, "fast");
   playSound(randomChosenColor);
+  $('#level-title').text("Level " + level);
 }
 
-// Grab the next color in the sequence
-function nextSequence() {
-  var randomNumber = Math.floor(Math.random() * 4);
-  return randomNumber;
+// Check the answer
+function checkAnswer(currentLevel) {
+  console.log("User clicked: " + userClickedPattern[currentLevel] + " from: " + userClickedPattern)
+  console.log("Simon said: " + gamePattern[currentLevel] + " from: " + gamePattern)
+  if (userClickedPattern[currentLevel] === gamePattern[currentLevel]) {
+    nextSequence();
+  }
 }
 
 // Play a game sound given the color
