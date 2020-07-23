@@ -6,10 +6,12 @@ var gameStarted = false;
 
 // Check for user keypress
 $('.btn').on('click', function() {
-  var userChosenColor = this.id;
-  playSound(userChosenColor);
-  userClickedPattern.push(userChosenColor);
-  checkAnswer((userClickedPattern.length - 1));
+  if (gameStarted) {
+    var userChosenColor = this.id;
+    playSound(userChosenColor);
+    userClickedPattern.push(userChosenColor);
+    checkAnswer((userClickedPattern.length) - 1);
+  }
 });
 
 
@@ -40,10 +42,26 @@ function nextSequence() {
 
 // Check the answer
 function checkAnswer(currentLevel) {
-  console.log("User clicked: " + userClickedPattern[currentLevel] + " from: " + userClickedPattern)
-  console.log("Simon said: " + gamePattern[currentLevel] + " from: " + gamePattern)
-  if (userClickedPattern[currentLevel] === gamePattern[currentLevel]) {
-    nextSequence();
+  // Check for wrong answer
+  if (userClickedPattern[currentLevel] != gamePattern[currentLevel]) {
+    var wrong = new Audio("sounds/wrong.mp3");
+    wrong.play();
+    $('body').addClass('game-over');
+    setTimeout(function () {
+      $('body').removeClass('game-over');
+    }, 200);
+    // Restart Game
+    $('#level-title').text("Game Over! Press any key to restart");
+    startOver();
+  }
+  // Answer is correct
+  else {
+    // Check to see if this is the final color in the sequence
+    if (userClickedPattern.length == gamePattern.length) {
+      setTimeout(function () {
+        nextSequence();
+      }, 1000);
+    }
   }
 }
 
@@ -51,4 +69,12 @@ function checkAnswer(currentLevel) {
 function playSound(color) {
   var sound = new Audio("sounds/" + color + ".mp3");
   sound.play();
+}
+
+// Restart game
+function startOver() {
+  gameStarted = false;
+  gamePattern = [];
+  userClickedPattern = [];
+  level = 0;
 }
